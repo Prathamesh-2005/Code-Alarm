@@ -1,8 +1,8 @@
 package com.Jadhav.Contest_tracker;
-
 import com.Jadhav.Contest_tracker.Model.Contest;
 import com.Jadhav.Contest_tracker.Model.Reminder;
 import com.Jadhav.Contest_tracker.Model.ReminderTime;
+import com.Jadhav.Contest_tracker.Model.ReminderType;
 import com.Jadhav.Contest_tracker.Repositery.ContestRepository;
 import com.Jadhav.Contest_tracker.Repositery.ReminderRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -59,4 +59,6 @@ public class ContestTrackerApplication {
 			System.out.println("Reminder set for: " + emailReminder.getReminderTime());
 		};
 	}
+
+
 }

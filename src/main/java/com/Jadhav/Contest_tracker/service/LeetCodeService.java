@@ -14,7 +14,6 @@ public class LeetCodeService {
     @Autowired
     private ContestService contestService;
     private final RestTemplate restTemplate = new RestTemplate();
-
     @Scheduled(cron = "0 0 2 * * *") // 2:00 AM
     public void fetchLeetCodeContests() {
         String url = "https://leetcode.com/graphql";
@@ -71,4 +70,7 @@ public class LeetCodeService {
             System.out.println("--------------------------------------");
         }
     }
+
+
+
 }

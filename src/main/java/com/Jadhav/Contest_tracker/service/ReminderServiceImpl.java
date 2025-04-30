@@ -1,4 +1,4 @@
-package com.Jadhav.Contest_tracker.service;
+package com.Jadhav.Contest_tracker.Service;
 
 import com.Jadhav.Contest_tracker.Model.Contest;
 import com.Jadhav.Contest_tracker.Model.Reminder;
