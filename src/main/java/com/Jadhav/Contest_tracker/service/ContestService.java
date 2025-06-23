@@ -1,7 +1,7 @@
 package com.Jadhav.Contest_tracker.service;
 
 import com.Jadhav.Contest_tracker.Model.Contest;
-import com.Jadhav.Contest_tracker.Repositery.ContestRepository;
+import com.Jadhav.Contest_tracker.Repository.ContestRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

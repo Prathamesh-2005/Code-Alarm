@@ -3,7 +3,7 @@ package com.Jadhav.Contest_tracker.service;
 import com.Jadhav.Contest_tracker.Model.Contest;
 import com.Jadhav.Contest_tracker.Model.Reminder;
 import com.Jadhav.Contest_tracker.Model.ReminderTime;
-import com.Jadhav.Contest_tracker.Repositery.ReminderRepository;
+import com.Jadhav.Contest_tracker.Repository.ReminderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

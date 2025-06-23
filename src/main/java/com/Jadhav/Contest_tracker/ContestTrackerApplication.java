@@ -1,22 +1,12 @@
 package com.Jadhav.Contest_tracker;
-import com.Jadhav.Contest_tracker.Model.Contest;
-import com.Jadhav.Contest_tracker.Model.Reminder;
-import com.Jadhav.Contest_tracker.Model.ReminderTime;
-import com.Jadhav.Contest_tracker.Model.ReminderType;
-import com.Jadhav.Contest_tracker.Repositery.ContestRepository;
-import com.Jadhav.Contest_tracker.Repositery.ReminderRepository;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.util.Date;
-
 @EnableScheduling
 @SpringBootApplication
-@EnableJpaRepositories("com.Jadhav.Contest_Tracker.Repositery")
+@EnableJpaRepositories("com.Jadhav.Contest_Tracker.Repository")
 public class ContestTrackerApplication {
 
 	public static void main(String[] args) {
@@ -35,7 +25,7 @@ public class ContestTrackerApplication {
 //
 //			// Set the start and end date for the contest
 //			Date now = new Date();
-//			Date startDate = new Date(now.getTime() + 2 * 60 * 1000); // 2 minutes from now
+//			Date startDate = new Date(now.getTime() + 2 * 60 * 10004); // 2 minutes from now
 //			Date endDate = new Date(now.getTime() + 62 * 60 * 1000); // 1 hour 2 minutes from now
 //
 //			contest.setContestStartDate(startDate);

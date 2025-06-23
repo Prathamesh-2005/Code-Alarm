@@ -17,6 +17,12 @@ public class Reminder {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    // Add user relationship
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // Keep email for backward compatibility, but now it's derived from user
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -27,8 +33,6 @@ public class Reminder {
     @JoinColumn(name = "contest_id")
     private Contest contest;
 
-    private boolean sent = false;
-
     public UUID getId() {
         return id;
     }
@@ -37,8 +41,12 @@ public class Reminder {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void setEmail(String email) {
@@ -69,11 +77,29 @@ public class Reminder {
         this.sent = sent;
     }
 
+    public String getCustomMessage() {
+        return customMessage;
+    }
+
+    public void setCustomMessage(String customMessage) {
+        this.customMessage = customMessage;
+    }
+
+    private boolean sent = false;
+
+    // Custom message for the reminder (optional)
+    private String customMessage;
+
+    public String getEmail() {
+        return user != null ? user.getEmail() : email;
+    }
+
     @Override
     public String toString() {
         return "Reminder{" +
                 "id=" + id +
-                ", email='" + email + '\'' +
+                ", user=" + (user != null ? user.getUsername() : null) +
+                ", email='" + getEmail() + '\'' +
                 ", reminderTime=" + reminderTime +
                 ", contest=" + (contest != null ? contest.getContestName() : null) +
                 ", sent=" + sent +
