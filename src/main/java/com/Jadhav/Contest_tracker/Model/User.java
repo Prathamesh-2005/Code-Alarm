@@ -1,5 +1,6 @@
 package com.Jadhav.Contest_tracker.Model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
@@ -53,6 +53,7 @@ public class User implements UserDetails {
 
     // One-to-many relationship with reminders
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Reminder> reminders = new ArrayList<>();
 
     @PrePersist

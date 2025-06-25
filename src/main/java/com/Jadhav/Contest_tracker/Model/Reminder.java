@@ -1,5 +1,7 @@
 package com.Jadhav.Contest_tracker.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,12 +19,13 @@ public class Reminder {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    // Add user relationship
+    // Use @JsonIgnore to prevent serialization of the user object
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore  // This prevents circular reference
     private User user;
 
-    // Keep email for backward compatibility, but now it's derived from user
+    // Keep email for backward compatibility
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -33,6 +36,10 @@ public class Reminder {
     @JoinColumn(name = "contest_id")
     private Contest contest;
 
+    private boolean sent = false;
+    private String customMessage;
+
+    // Getters and setters
     public UUID getId() {
         return id;
     }
@@ -85,11 +92,7 @@ public class Reminder {
         this.customMessage = customMessage;
     }
 
-    private boolean sent = false;
-
-    // Custom message for the reminder (optional)
-    private String customMessage;
-
+    // This method will still work for getting email
     public String getEmail() {
         return user != null ? user.getEmail() : email;
     }
