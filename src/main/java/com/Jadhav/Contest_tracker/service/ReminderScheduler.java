@@ -37,7 +37,8 @@ public class ReminderScheduler {
 
             if (isWithinNextMinute(scheduledReminderTime, now)) {
                 if (reminder.getEmail() != null) {
-                    emailService.sendReminder(reminder.getEmail(), contest);
+                    // Pass the reminder object as the third parameter
+                    emailService.sendReminder(reminder.getEmail(), contest, reminder);
                     reminder.setSent(true);
                     reminderRepository.save(reminder);
                 }

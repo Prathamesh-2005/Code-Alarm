@@ -14,10 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reminders")
+@CrossOrigin(origins = "*")
 public class ReminderController {
 
     @Autowired
@@ -59,80 +59,71 @@ public class ReminderController {
             return ResponseEntity.status(500).body("Error creating reminder: " + e.getMessage());
         }
     }
+
     @GetMapping("/my-reminders")
     public ResponseEntity<?> getMyReminders(HttpServletRequest request) {
         try {
-            // Log the request for debugging
-            System.out.println("Received request for /api/reminders/my-reminders");
-            System.out.println("Authorization header: " + request.getHeader("Authorization"));
+            System.out.println("=== GET /my-reminders endpoint hit ===");
 
-            // Get authentication details
+            // Check headers
+            String authHeader = request.getHeader("Authorization");
+            System.out.println("Authorization header: " + authHeader);
+            System.out.println("Authorization header exists: " + (authHeader != null));
+            System.out.println("Authorization header starts with Bearer: " + (authHeader != null && authHeader.startsWith("Bearer ")));
+
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                System.out.println("User not authenticated");
-                return ResponseEntity.status(401).body(createErrorResponse("Authentication required", 401));
+            System.out.println("Authentication object: " + authentication);
+            System.out.println("Authentication class: " + (authentication != null ? authentication.getClass().getSimpleName() : "null"));
+            System.out.println("Is Authenticated: " + (authentication != null && authentication.isAuthenticated()));
+            System.out.println("Principal: " + (authentication != null ? authentication.getPrincipal() : "null"));
+            System.out.println("Principal class: " + (authentication != null && authentication.getPrincipal() != null ? authentication.getPrincipal().getClass().getSimpleName() : "null"));
+
+            if (authentication == null) {
+                System.out.println("Authentication is null - JWT filter might not be working");
+                return ResponseEntity.status(401).body("Authentication is null");
             }
 
-            // Get username from authentication
+            if (!authentication.isAuthenticated()) {
+                System.out.println("User not authenticated!");
+                return ResponseEntity.status(401).body("User not authenticated");
+            }
+
             String username = authentication.getName();
+            System.out.println("Username from auth: " + username);
+
             if (username == null || username.equals("anonymousUser")) {
-                System.out.println("Invalid username: " + username);
-                return ResponseEntity.status(401).body(createErrorResponse("Invalid authentication", 401));
+                System.out.println("Username is null or anonymous - JWT processing failed");
+                return ResponseEntity.status(401).body("Invalid authentication");
             }
 
-            // Find user in database
             User user = userService.findByUsername(username).orElse(null);
             if (user == null) {
-                System.out.println("User not found for username: " + username);
-                return ResponseEntity.status(404).body(createErrorResponse("User not found", 404));
+                System.out.println("User not found in database for username: " + username);
+                return ResponseEntity.status(404).body("User not found");
             }
 
-            // Get reminders for user
+            System.out.println("Found user: " + user.getUsername() + " (ID: " + user.getId() + ")");
+
             List<Reminder> reminders = reminderService.getUserReminders(user);
-            System.out.println("Found " + reminders.size() + " reminders for user: " + username);
+            System.out.println("Found " + reminders.size() + " reminders for user");
+            for (Reminder reminder : reminders) {
+                System.out.println("Reminder ID: " + reminder.getId());
+                System.out.println("Contest: " + (reminder.getContest() != null ? reminder.getContest().getContestName() : "NULL"));
+                System.out.println("Contest ID: " + (reminder.getContest() != null ? reminder.getContest().getContestId() : "NULL"));
+            }
 
-            // Transform reminders to response DTO
-            List<Map<String, Object>> response = reminders.stream()
-                    .map(reminder -> {
-                        Map<String, Object> reminderMap = new HashMap<>();
-                        reminderMap.put("id", reminder.getId().toString());
-                        reminderMap.put("reminderTime", reminder.getReminderTime().toString());
-                        reminderMap.put("sent", reminder.isSent());
-
-                        if (reminder.getContest() != null) {
-                            Map<String, Object> contestMap = new HashMap<>();
-                            contestMap.put("id", reminder.getContest().getId().toString());
-                            contestMap.put("name", reminder.getContest().getContestName());
-                            contestMap.put("contestId", reminder.getContest().getContestId());
-                            contestMap.put("platform", reminder.getContest().getPlatform());
-                            contestMap.put("startDate", reminder.getContest().getContestStartDate().getTime());
-                            contestMap.put("endDate", reminder.getContest().getContestEndDate() != null ?
-                                    reminder.getContest().getContestEndDate().getTime() : null);
-                            contestMap.put("duration", reminder.getContest().getContestDuration());
-                            contestMap.put("url", reminder.getContest().getContestUrl());
-
-                            reminderMap.put("contest", contestMap);
-                        }
-
-                        return reminderMap;
-                    })
-                    .collect(Collectors.toList());
-
-            // Log successful response
-            System.out.println("Returning " + response.size() + " reminders");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(reminders);
 
         } catch (Exception e) {
-            // Log the full error
             System.err.println("Error in getMyReminders: " + e.getMessage());
             e.printStackTrace();
 
-            // Return detailed error response
-            return ResponseEntity.status(500).body(createErrorResponse(
-                    "Internal server error: " + e.getMessage(),
-                    500,
-                    e.getClass().getSimpleName()
-            ));
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Internal server error");
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("timestamp", System.currentTimeMillis());
+
+            return ResponseEntity.status(500).body(errorResponse);
         }
     }
 
@@ -169,20 +160,25 @@ public class ReminderController {
         }
     }
 
-    private Map<String, Object> createErrorResponse(String message, int status) {
-        return createErrorResponse(message, status, null);
-    }
+    @GetMapping("/test")
+    public ResponseEntity<?> test(HttpServletRequest request) {
+        System.out.println("=== GET /test endpoint hit ===");
 
-    private Map<String, Object> createErrorResponse(String message, int status, String errorType) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("status", status);
-        errorResponse.put("message", message);
-        errorResponse.put("timestamp", System.currentTimeMillis());
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("Authorization header in test: " + authHeader);
 
-        if (errorType != null) {
-            errorResponse.put("error", errorType);
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication in test: " + authentication);
 
-        return errorResponse;
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Reminder Controller is working!");
+        response.put("hasAuthHeader", authHeader != null);
+        response.put("authHeaderValue", authHeader);
+        response.put("hasAuthentication", authentication != null);
+        response.put("isAuthenticated", authentication != null && authentication.isAuthenticated());
+        response.put("principal", authentication != null ? authentication.getPrincipal() : null);
+        response.put("timestamp", System.currentTimeMillis());
+
+        return ResponseEntity.ok(response);
     }
 }

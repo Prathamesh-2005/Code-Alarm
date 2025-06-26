@@ -1,6 +1,8 @@
 package com.Jadhav.Contest_tracker.service;
 
+import com.Jadhav.Contest_tracker.Model.PasswordResetToken;
 import com.Jadhav.Contest_tracker.Model.User;
+import com.Jadhav.Contest_tracker.Repository.PasswordResetTokenRepository;
 import com.Jadhav.Contest_tracker.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -56,5 +59,44 @@ public class UserService implements UserDetailsService {
 
     public User updateUserPreferences(User user) {
         return userRepository.save(user);
+    }
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    public void initiatePasswordReset(String email) {
+        User user = findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Delete any existing tokens for this user
+        passwordResetTokenRepository.deleteByUser_Id(user.getId());
+
+        // Create new token
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken(token, user);
+        passwordResetTokenRepository.save(resetToken);
+
+        // Send email
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
+    }
+
+    public void completePasswordReset(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if (resetToken.isExpired()) {
+            passwordResetTokenRepository.delete(resetToken);
+            throw new RuntimeException("Token has expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Clean up
+        passwordResetTokenRepository.delete(resetToken);
     }
 }
