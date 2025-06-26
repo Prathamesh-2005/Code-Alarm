@@ -18,38 +18,44 @@ public class ContestService {
 
     @Transactional
     public void saveContestIfNotExists(String name, String platform, String contestId, Date start, Date end, long duration, String url) {
-        System.out.println("Trying to save: " + contestId);
+        System.out.println("🔄 Trying to save: " + contestId);
         try {
             if (!contestRepository.existsByContestId(contestId)) {
-                System.out.println("Not exists: " + contestId);
+                System.out.println("➕ Contest doesn't exist, creating: " + contestId);
                 Contest contest = new Contest(name, platform, contestId, start, end, duration, url);
                 Contest savedContest = contestRepository.save(contest);
-                System.out.println("Saved: " + contestId);
+                System.out.println("✅ Successfully saved: " + contestId + " | Start: " + start);
             } else {
-                System.out.println("Already exists: " + contestId);
+                System.out.println("⚠️ Contest already exists: " + contestId);
             }
         } catch (Exception e) {
-            System.err.println("Error saving contest " + contestId + ": " + e.getMessage());
+            System.err.println("❌ Error saving contest " + contestId + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     public List<Contest> getAllContests() {
-        return contestRepository.findAll();
+        List<Contest> contests = contestRepository.findAll();
+        System.out.println("📊 Retrieved " + contests.size() + " contests from database");
+        return contests;
     }
 
     public List<Contest> getFilteredContests(String platform, LocalDate startDate, LocalDate endDate) {
         Date start = startDate != null ? java.sql.Timestamp.valueOf(startDate.atStartOfDay()) : null;
         Date end = endDate != null ? java.sql.Timestamp.valueOf(endDate.atTime(23, 59)) : null;
 
+        List<Contest> results;
         if (platform != null && start != null && end != null) {
-            return contestRepository.findByPlatformAndContestStartDateBetween(platform, start, end);
+            results = contestRepository.findByPlatformAndContestStartDateBetween(platform, start, end);
         } else if (platform != null) {
-            return contestRepository.findByPlatform(platform);
+            results = contestRepository.findByPlatform(platform);
         } else if (start != null && end != null) {
-            return contestRepository.findByContestStartDateBetween(start, end);
+            results = contestRepository.findByContestStartDateBetween(start, end);
         } else {
-            return contestRepository.findAll();
+            results = contestRepository.findAll();
         }
+
+        System.out.println("🔍 Filtered contests: " + results.size() + " matches");
+        return results;
     }
 }

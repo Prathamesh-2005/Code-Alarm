@@ -20,7 +20,7 @@ public class Reminder {
     private UUID id;
 
     // Use @JsonIgnore to prevent serialization of the user object
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore  // This prevents circular reference
     private User user;

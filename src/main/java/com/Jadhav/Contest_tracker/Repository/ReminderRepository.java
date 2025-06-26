@@ -18,8 +18,13 @@ public interface ReminderRepository extends JpaRepository<Reminder, UUID> {
 
     List<Reminder> findByUserAndSentFalse(User user);
 
-    List<Reminder> findByUser(User user);
 
     @Query("SELECT r FROM Reminder r WHERE r.user.id = :userId AND r.contest.id = :contestId")
     List<Reminder> findByUserIdAndContestId(@Param("userId") UUID userId, @Param("contestId") UUID contestId);
+
+    List<Reminder> findByUser(User user);
+
+    // Custom query to fetch reminders with contest data
+    @Query("SELECT r FROM Reminder r JOIN FETCH r.contest WHERE r.user = :user ORDER BY r.reminderTime ASC")
+    List<Reminder> findByUserWithContest(@Param("user") User user);
 }

@@ -14,9 +14,21 @@ public class CodeforcesService {
     private ContestService contestService;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // Manual fetch method for controller
+    public String fetchCodeforcesContestsManually() {
+        System.out.println("🚨 Manual fetch triggered for Codeforces");
+        return performFetch();
+    }
+
+    // Scheduled fetch method
     @Scheduled(cron = "0 15 2 * * *") // 2:15 AM
     public void fetchCodeforcesContests() {
-        System.out.println("🚨 Inside fetchCodeforcesContests()");
+        System.out.println("🚨 Scheduled fetch triggered for Codeforces");
+        performFetch();
+    }
+
+    // Common fetch logic
+    private String performFetch() {
         String url = "https://codeforces.com/api/contest.list";
         try {
             Map response = restTemplate.getForObject(url, Map.class);
@@ -24,7 +36,7 @@ public class CodeforcesService {
 
             if (response == null || !"OK".equals(response.get("status")) || !response.containsKey("result")) {
                 System.err.println("❌ Invalid response from Codeforces API");
-                return;
+                return "❌ Failed to fetch Codeforces contests";
             }
 
             List<Map<String, Object>> result = (List<Map<String, Object>>) response.get("result");
@@ -53,10 +65,16 @@ public class CodeforcesService {
                 contestService.saveContestIfNotExists(name, "Codeforces", "codeforces-" + id, startDate, endDate, duration, contestUrl);
                 count++;
             }
-            System.out.println("✅ Processed " + count + " upcoming Codeforces contests");
+
+            String message = "✅ Processed " + count + " upcoming Codeforces contests";
+            System.out.println(message);
+            return message;
+
         } catch (Exception e) {
-            System.err.println("❌ Error fetching Codeforces contests: " + e.getMessage());
+            String error = "❌ Error fetching Codeforces contests: " + e.getMessage();
+            System.err.println(error);
             e.printStackTrace();
+            return error;
         }
     }
 }

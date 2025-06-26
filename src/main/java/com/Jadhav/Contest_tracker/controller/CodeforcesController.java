@@ -8,14 +8,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/codeforces")
+@RequestMapping("/api/codeforces")
 @CrossOrigin(origins = "http://localhost:5173")
 public class CodeforcesController {
-    @Autowired private CodeforcesService codeforcesService;
+
+    @Autowired
+    private CodeforcesService codeforcesService;
 
     @GetMapping("/fetch")
     public String fetch() {
-        codeforcesService.fetchCodeforcesContests();
-        return "Codeforces contests synced.";
+        return codeforcesService.fetchCodeforcesContestsManually();
     }
 }

@@ -5,15 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/leetcode")
+@RequestMapping("/api/leetcode")
 @CrossOrigin(origins = "http://localhost:5173")
 public class LeetCodeController {
+
     @Autowired
     private LeetCodeService leetCodeService;
 
-    @PostMapping("/fetch")
+    @GetMapping("/fetch") // Changed from POST to GET
     public String fetch() {
-        leetCodeService.fetchLeetCodeContests();
-        return "LeetCode contests synced.";
+        return leetCodeService.fetchLeetCodeContestsManually();
     }
 }
