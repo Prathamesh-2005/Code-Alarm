@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -28,6 +26,39 @@ public class ReminderController {
     @Autowired
     private UserService userService;
 
+    @PostMapping("/set/{contestId}")
+    public ResponseEntity<?> setReminder(@RequestBody Reminder reminder, @PathVariable String contestId) {
+        try {
+            System.out.println("=== POST /set/{contestId} endpoint hit ===");
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Authentication: " + authentication);
+            System.out.println("Is Authenticated: " + (authentication != null && authentication.isAuthenticated()));
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                System.out.println("User not authenticated in POST endpoint!");
+                return ResponseEntity.status(401).body("User not authenticated");
+            }
+
+            String username = authentication.getName();
+            System.out.println("Username from auth: " + username);
+
+            User user = userService.findByUsername(username).orElseThrow();
+            System.out.println("Found user: " + user.getUsername());
+
+            reminder.setUser(user);
+            System.out.println("Received Reminder: " + reminder);
+
+            Reminder savedReminder = reminderService.saveReminder(reminder, contestId);
+            System.out.println("Successfully saved reminder with ID: " + savedReminder.getId());
+
+            return ResponseEntity.ok(savedReminder);
+        } catch (Exception e) {
+            System.err.println("Error in setReminder: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating reminder: " + e.getMessage());
+        }
+    }
     @GetMapping("/my-reminders")
     public ResponseEntity<?> getMyReminders(HttpServletRequest request) {
         try {
@@ -102,6 +133,39 @@ public class ReminderController {
                     500,
                     e.getClass().getSimpleName()
             ));
+        }
+    }
+
+    @DeleteMapping("/{reminderId}")
+    public ResponseEntity<?> deleteReminder(@PathVariable String reminderId) {
+        try {
+            System.out.println("=== DELETE /{reminderId} endpoint hit ===");
+            System.out.println("Reminder ID to delete: " + reminderId);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Authentication: " + authentication);
+            System.out.println("Is Authenticated: " + (authentication != null && authentication.isAuthenticated()));
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                System.out.println("User not authenticated in DELETE endpoint!");
+                return ResponseEntity.status(401).body("User not authenticated");
+            }
+
+            String username = authentication.getName();
+            System.out.println("Username from auth: " + username);
+
+            User user = userService.findByUsername(username).orElseThrow();
+            System.out.println("Found user: " + user.getUsername());
+
+            reminderService.deleteUserReminder(reminderId, user);
+            System.out.println("Successfully deleted reminder with ID: " + reminderId);
+
+            return ResponseEntity.ok().body("Reminder deleted successfully");
+
+        } catch (Exception e) {
+            System.err.println("Error in deleteReminder: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error deleting reminder: " + e.getMessage());
         }
     }
 
