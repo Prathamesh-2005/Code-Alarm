@@ -1,0 +1,20 @@
+# Download the official OpenJDK 17 image
+FROM eclipse-temurin:17-jdk
+
+# Create a folder inside the Docker container
+WORKDIR /app
+
+# Copy all your project files into that folder
+COPY . .
+
+# Give permission to run Maven wrapper
+RUN chmod +x mvnw
+
+# Build your Spring Boot JAR file
+RUN ./mvnw clean package -DskipTests
+
+# Tell Docker to expose port 8080
+EXPOSE 8080
+
+# Run the JAR file
+CMD ["java", "-jar", "target/codealarm-0.0.1-SNAPSHOT.jar"]
