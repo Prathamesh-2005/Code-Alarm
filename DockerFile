@@ -1,5 +1,5 @@
-# Download the official OpenJDK 17 image
-FROM eclipse-temurin:17-jdk
+# Use official OpenJDK 22 image
+FROM eclipse-temurin:22-jdk
 
 # Create a folder inside the Docker container
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN chmod +x mvnw
 # Build your Spring Boot JAR file
 RUN ./mvnw clean package -DskipTests
 
-# Tell Docker to expose port 8080
+# Expose Spring Boot's default port
 EXPOSE 8080
 
 # Run the JAR file
