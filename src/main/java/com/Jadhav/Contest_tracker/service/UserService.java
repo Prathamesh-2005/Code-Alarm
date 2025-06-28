@@ -10,12 +10,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class UserService implements UserDetailsService {
 
     @Autowired
@@ -74,14 +76,19 @@ public class UserService implements UserDetailsService {
         // Delete any existing tokens for this user
         passwordResetTokenRepository.deleteByUser_Id(user.getId());
 
-        // Create new token
-        String token = UUID.randomUUID().toString();
+        // Generate unique token
+        String token;
+        do {
+            token = UUID.randomUUID().toString();
+        } while (passwordResetTokenRepository.existsByToken(token));
+
         PasswordResetToken resetToken = new PasswordResetToken(token, user);
         passwordResetTokenRepository.save(resetToken);
 
         // Send email
         emailService.sendPasswordResetEmail(user.getEmail(), token);
     }
+
 
     public void completePasswordReset(String token, String newPassword) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
