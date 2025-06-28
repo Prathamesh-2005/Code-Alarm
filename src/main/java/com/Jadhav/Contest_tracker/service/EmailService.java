@@ -65,7 +65,7 @@ public class EmailService {
     }
 
     public void sendPasswordResetEmail(String to, String token) {
-        String resetUrl = "http://localhost:5173/reset-password?token=" + token;
+        String resetUrl = "https://code-alarm-contest.vercel.app/reset-password?token=" + token;
         String subject = "Password Reset Request";
         String text = "To reset your password, click the link below:\n" + resetUrl +
                 "\n\nThis link will expire in 24 hours.";
