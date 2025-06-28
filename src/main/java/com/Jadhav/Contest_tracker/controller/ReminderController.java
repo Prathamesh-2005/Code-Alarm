@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reminders")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://code-alarm-contest.vercel.app/")
 public class ReminderController {
 
     @Autowired
