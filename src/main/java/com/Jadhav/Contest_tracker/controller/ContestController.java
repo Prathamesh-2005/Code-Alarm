@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/contests")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://code-alarm-contest.vercel.app/")
 public class ContestController {
 
     @Autowired
