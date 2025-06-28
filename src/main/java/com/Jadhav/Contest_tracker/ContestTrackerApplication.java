@@ -18,7 +18,6 @@ import java.util.Date;
 
 @EnableScheduling
 @SpringBootApplication
-@EnableJpaRepositories("com.Jadhav.Contest_Tracker.Repository")
 public class ContestTrackerApplication {
 
 	public static void main(String[] args) {
