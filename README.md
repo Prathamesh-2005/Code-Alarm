@@ -145,7 +145,6 @@ VITE_API_BASE_URL=http://localhost:8080/api
 
 ## 🖥️ Screenshots
 
-*Add screenshots or GIFs here to showcase the UI and features!*
 ![image](https://github.com/user-attachments/assets/2e4ef8fe-d07f-4386-bcc6-0c1ca7562131)
 ![image](https://github.com/user-attachments/assets/3ab89619-b3a3-4bef-9a44-5ad2eb45d244)
 ![image](https://github.com/user-attachments/assets/02684018-eaf8-4605-9c16-a60e987eff4b)
