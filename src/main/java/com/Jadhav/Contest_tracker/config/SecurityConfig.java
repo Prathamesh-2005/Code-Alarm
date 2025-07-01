@@ -53,12 +53,13 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(authz -> authz
-                        // Public endpoints
+                       
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
                                 "/api/auth/forgot-password",
-                                "/api/auth/reset-password"
+                                "/api/auth/reset-password",
+                                 "/actuator/health"
                         ).permitAll()
                         .requestMatchers("/api/contests/**").permitAll()
                         .requestMatchers(
@@ -67,11 +68,10 @@ public class SecurityConfig {
                                 "/api/leetcode/fetch"
                         ).permitAll()
 
-                        // Authenticated endpoints
+                        
                         .requestMatchers("/api/reminders/**").authenticated()
-                        .requestMatchers("/api/auth/**").authenticated() // All other auth endpoints require auth
-
-                        // Catch-all rule
+                        .requestMatchers("/api/auth/**").authenticated() 
+                       
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
